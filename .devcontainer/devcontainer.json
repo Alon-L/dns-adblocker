@@ -1,6 +1,0 @@
-{
-  "name": "Elixir",
-  "build": {
-    "dockerfile": "Dockerfile",
-  },
-}
