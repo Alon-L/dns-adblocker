@@ -14,8 +14,37 @@
       <excludeFolder url="file://$MODULE_DIR$/deps" />
       <excludeFolder url="file://$MODULE_DIR$/doc" />
       <excludeFolder url="file://$MODULE_DIR$/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/socket" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/castore" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/finch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/hpax" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mime" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mint" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/nimble_options" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/nimble_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/telemetry" />
     </content>
     <orderEntry type="jdk" jdkName="Elixir at C:/Program Files/Elixir" jdkType="Elixir SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="socket" level="project" />
+    <orderEntry type="library" exported="" name="ex_doc" level="project" />
+    <orderEntry type="library" name="finch" level="project" />
+    <orderEntry type="library" name="mint" level="project" />
+    <orderEntry type="library" name="castore" level="project" />
+    <orderEntry type="library" name="nimble_pool" level="project" />
+    <orderEntry type="library" name="nimble_options" level="project" />
+    <orderEntry type="library" name="telemetry" level="project" />
+    <orderEntry type="library" name="mime" level="project" />
+    <orderEntry type="library" name="credo" level="project" />
+    <orderEntry type="library" name="dialyxir" level="project" />
+    <orderEntry type="library" name="bypass" level="project" />
+    <orderEntry type="library" name="cowboy" level="project" />
+    <orderEntry type="library" name="plug_cowboy" level="project" />
+    <orderEntry type="library" name="x509" level="project" />
+    <orderEntry type="library" name="hpax" level="project" />
+    <orderEntry type="library" name="excoveralls" level="project" />
+    <orderEntry type="library" name="mox" level="project" />
+    <orderEntry type="library" name="stream_data" level="project" />
+    <orderEntry type="library" name="hpack" level="project" />
   </component>
 </module>
