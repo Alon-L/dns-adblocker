@@ -19,6 +19,8 @@ defmodule DnsAdblocker.Providers do
   def fetch_and_update() do
     IO.inspect("Fetching and updating agent...")
 
+    Agent.update(__MODULE__, fn _ -> MapSet.new() end)
+
     providers = fetch()
       |> Enum.into(MapSet.new)
 
@@ -26,8 +28,6 @@ defmodule DnsAdblocker.Providers do
   end
 
   def start_link(_initial_value) do
-    IO.inspect("Here")
-
     Agent.start_link(fn -> MapSet.new() end, name: __MODULE__)
   end
 

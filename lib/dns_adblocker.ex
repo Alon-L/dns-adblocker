@@ -1,49 +1,67 @@
 defmodule DnsAdblocker do
   use Application
 
-  @remote_dns_addr {"82.102.139.10", 53}
+  @remote_dns_addr {82, 102, 139, 10}
+  @remote_dns_port 53
 
   def start(_type, _args) do
     children = [
       {Finch, name: MyFinch},
-      {DnsAdblocker.Providers, name: Providers}
+      {DnsAdblocker.Providers, name: Providers},
+      {DnsAdblocker.Providers.Scheduler, name: Scheduler},
+      {DnsAdblocker.TransactionsMap, name: TransactionsMap}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_all)
 
-    local_server = Socket.UDP.open!(53)
-    remote_server = Socket.UDP.open!()
+    {:ok, local_server} = :gen_udp.open(53, [:binary, {:active, true}])
+    {:ok, remote_server} = :gen_udp.open(0, [:binary, {:active, true}])
 
-    Task.start(&DnsAdblocker.Providers.fetch_and_update/0)
+    :ok = :gen_udp.connect(remote_server, @remote_dns_addr, @remote_dns_port)
 
     IO.inspect("Running!")
 
-    listen(local_server, remote_server)
+    listen(local_server, remote_server, Map.new())
   end
 
-  def listen(local_server, remote_server) do
-    {data, client} = local_server |> Socket.Datagram.recv!()
+  def listen(local_server, remote_server, map) do
+    receive do
+      {:udp, ^local_server, ip, port, packet} ->
+        spawn(fn ->
+          if DnsAdblocker.Packet.is_query?(packet) && DnsAdblocker.Packet.is_one_question?(packet) do
+            question =
+              DnsAdblocker.Packet.get_question(packet)
+              |> Enum.join(".")
 
-    spawn(fn ->
-      remote_server |> Socket.Datagram.send!(data, @remote_dns_addr)
-      {res, _} = remote_server |> Socket.Datagram.recv!()
+            if !DnsAdblocker.Providers.has_provider?(question) do
+              DnsAdblocker.Packet.get_transaction_id(packet)
+              |> DnsAdblocker.TransactionsMap.put({ip, port})
 
-      local_server |> Socket.Datagram.send!(res, client)
+              :gen_udp.send(remote_server, packet)
+            else
+              :gen_udp.send(local_server, ip, port, DnsAdblocker.Packet.invalid_response(packet))
+            end
+          else
+            DnsAdblocker.Packet.get_transaction_id(packet)
+            |> DnsAdblocker.TransactionsMap.put({ip, port})
 
-      if DnsAdblocker.Packet.is_query?(data) && DnsAdblocker.Packet.is_one_question?(data) do
-        question =
-          DnsAdblocker.Packet.get_question(data)
-          |> Enum.join(".")
+            :gen_udp.send(remote_server, packet)
+          end
+        end)
 
-        if !DnsAdblocker.Providers.has_provider?(question) do
-          remote_server |> Socket.Datagram.send!(data, @remote_dns_addr)
-          {res, _} = remote_server |> Socket.Datagram.recv!()
+      {:udp, ^remote_server, _ip, _port, packet} ->
+        spawn(fn ->
+          {ip, port} =
+            DnsAdblocker.Packet.get_transaction_id(packet)
+            |> DnsAdblocker.TransactionsMap.pop()
 
-          local_server |> Socket.Datagram.send!(res, client)
-        end
-      end
-    end)
+          :gen_udp.send(local_server, ip, port, packet)
+        end)
 
-    listen(local_server, remote_server)
+      _ ->
+        IO.puts("Unknown message")
+    end
+
+    listen(local_server, remote_server, map)
   end
 end

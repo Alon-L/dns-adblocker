@@ -49,4 +49,16 @@ defmodule DnsAdblocker.Packet do
         [label] ++ get_question(before <> question_rest)
     end
   end
+
+  def get_transaction_id(<<id::size(16), _::bitstring>>) do
+    id
+  end
+
+  def invalid_response(
+        <<chunk1::bitstring-size(@dns_qr_offset), _::size(@dns_qr_size),
+          chunk2::bitstring-size(@dns_rcode_offset - (@dns_qr_offset + @dns_qr_size)),
+          _::size(@dns_rcode_size), chunk3::bitstring>>
+      ) do
+     <<chunk1::bitstring, 1::size(@dns_qr_size), chunk2::bitstring, 3::size(@dns_rcode_size), chunk3::bitstring>>
+  end
 end
