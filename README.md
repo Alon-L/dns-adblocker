@@ -1,21 +1,23 @@
-# DnsAdblocker
+# DNS AdBlocker
 
 **TODO: Add description**
 
-## Installation
+## Running
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dns_adblocker` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:dns_adblocker, "~> 0.1.0"}
-  ]
-end
+Run the program with root privileges (required for opening the socket):
+```bash
+sudo mix run
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/dns_adblocker>.
+Configure the machine to be the default network's DNS server.
+
+## Configuration
+
+Create a `config/runtime.exs` file with the following content:
+```elixir
+import Config
+config :dns_adblocker, :remote_dns_addr, "<REMOTE_DNS_IP>:<REMOTE_DNS_PORT>"
+```
+
+Replace `<REMOTE_DNS_IP>` and `<REMOTE_DNS_PORT>` with the IP and port of the actual DNS server.
 
