@@ -36,7 +36,7 @@ defmodule DnsAdblocker.Packet do
 
   @doc """
   Return a list of the question's parts.
-
+  
   Should probably be joined by Enum.join(2).
   """
   @spec get_question(binary()) :: bool
@@ -59,6 +59,7 @@ defmodule DnsAdblocker.Packet do
           chunk2::bitstring-size(@dns_rcode_offset - (@dns_qr_offset + @dns_qr_size)),
           _::size(@dns_rcode_size), chunk3::bitstring>>
       ) do
-     <<chunk1::bitstring, 1::size(@dns_qr_size), chunk2::bitstring, 3::size(@dns_rcode_size), chunk3::bitstring>>
+    <<chunk1::bitstring, 1::size(@dns_qr_size), chunk2::bitstring, 3::size(@dns_rcode_size),
+      chunk3::bitstring>>
   end
 end
