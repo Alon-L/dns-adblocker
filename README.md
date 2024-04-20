@@ -16,8 +16,9 @@ Configure the machine to be the default network's DNS server.
 Create a `config/runtime.exs` file with the following content:
 ```elixir
 import Config
-config :dns_adblocker, :remote_dns_addr, "<REMOTE_DNS_IP>:<REMOTE_DNS_PORT>"
+config :dns_adblocker, :remote_dns_ip, "<REMOTE_DNS_IP>"
+config :dns_adblocker, :remote_dns_port, <REMOTE_DNS_PORT>
 ```
 
 Replace `<REMOTE_DNS_IP>` and `<REMOTE_DNS_PORT>` with the IP and port of the actual DNS server.
-
+The IP should be formatted as `X.X.X.X` and the port should be an integer.
