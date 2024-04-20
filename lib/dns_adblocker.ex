@@ -1,25 +1,24 @@
 defmodule DnsAdblocker do
   use Application
 
-  @remote_dns_addr {82, 102, 139, 10}
-  @remote_dns_port 53
-
   def start(_type, _args) do
     children = [
       {Finch, name: MyFinch},
-      {DnsAdblocker.Providers, name: Providers},
       {DnsAdblocker.Providers.Scheduler, name: Scheduler},
-      {DnsAdblocker.TransactionsMap, name: TransactionsMap}
     ]
+
+    DnsAdblocker.Requests.start()
+
+    {remote_dns_ip, remote_dns_port} = DnsAdblocker.RemoteAddr.get_remote_dns_addr()
 
     Supervisor.start_link(children, strategy: :one_for_all)
 
     {:ok, local_server} = :gen_udp.open(53, [:binary, {:active, true}])
     {:ok, remote_server} = :gen_udp.open(0, [:binary, {:active, true}])
 
-    :ok = :gen_udp.connect(remote_server, @remote_dns_addr, @remote_dns_port)
+    :ok = :gen_udp.connect(remote_server, remote_dns_ip, remote_dns_port)
 
-    IO.inspect("Running!")
+    IO.puts("Running!")
 
     listen(local_server, remote_server, Map.new())
   end
@@ -35,7 +34,7 @@ defmodule DnsAdblocker do
 
             if !DnsAdblocker.Providers.has_provider?(question) do
               DnsAdblocker.Packet.get_transaction_id(packet)
-              |> DnsAdblocker.TransactionsMap.put({ip, port})
+              |> DnsAdblocker.Requests.put({ip, port})
 
               :gen_udp.send(remote_server, packet)
             else
@@ -43,7 +42,7 @@ defmodule DnsAdblocker do
             end
           else
             DnsAdblocker.Packet.get_transaction_id(packet)
-            |> DnsAdblocker.TransactionsMap.put({ip, port})
+            |> DnsAdblocker.Requests.put({ip, port})
 
             :gen_udp.send(remote_server, packet)
           end
@@ -53,7 +52,7 @@ defmodule DnsAdblocker do
         spawn(fn ->
           {ip, port} =
             DnsAdblocker.Packet.get_transaction_id(packet)
-            |> DnsAdblocker.TransactionsMap.pop()
+            |> DnsAdblocker.Requests.pop()
 
           :gen_udp.send(local_server, ip, port, packet)
         end)

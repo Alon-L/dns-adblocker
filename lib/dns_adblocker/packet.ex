@@ -39,7 +39,7 @@ defmodule DnsAdblocker.Packet do
   
   Should probably be joined by Enum.join(2).
   """
-  @spec get_question(binary()) :: bool
+  @spec get_question(binary()) :: [String.t()]
   def get_question(<<before::bitstring-size(@dns_question_offset), rest::bitstring>>) do
     case rest do
       <<0::size(8), _::bitstring>> ->

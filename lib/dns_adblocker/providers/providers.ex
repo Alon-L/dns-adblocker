@@ -1,9 +1,16 @@
 defmodule DnsAdblocker.Providers do
-  @moduledoc false
+  @moduledoc """
+  Use erlang's ETS to store a set of all the providers' DNSs.
 
-  use Agent
+  Fetch the providers from the @providers_url list.
+  The list is updated every day, and the Providers Scheduler updates the ETS.
+  """
 
   @providers_url "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/domains/pro.txt"
+
+  def start() do
+    :ets.new(:providers, [:named_table, :set, :public])
+  end
 
   @spec fetch() :: Enumerable.t()
   defp fetch() do
@@ -17,22 +24,20 @@ defmodule DnsAdblocker.Providers do
 
   @spec fetch_and_update() :: :ok
   def fetch_and_update() do
-    IO.inspect("Fetching and updating agent...")
+    IO.puts("Fetching and updating providers...")
 
-    Agent.update(__MODULE__, fn _ -> MapSet.new() end)
+    providers =
+      fetch()
+      |> Stream.map(&({&1}))
+      |> Enum.to_list()
 
-    providers = fetch()
-      |> Enum.into(MapSet.new)
+    true = :ets.insert(:providers, providers)
 
-    Agent.update(__MODULE__, fn _ -> providers end)
-  end
-
-  def start_link(_initial_value) do
-    Agent.start_link(fn -> MapSet.new() end, name: __MODULE__)
+    IO.puts("Finished fetching and updating providers")
   end
 
   @spec has_provider?(String.t()) :: String.t()
   def has_provider?(provider) when is_binary(provider) do
-    Agent.get(__MODULE__, fn providers -> MapSet.member?(providers, provider) end)
+    :ets.member(:providers, provider)
   end
 end
