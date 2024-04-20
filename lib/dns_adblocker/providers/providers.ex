@@ -26,6 +26,8 @@ defmodule DnsAdblocker.Providers do
   def fetch_and_update() do
     IO.puts("Fetching and updating providers...")
 
+    :ets.delete_all_objects(:providers)
+
     providers =
       fetch()
       |> Stream.map(&({&1}))
