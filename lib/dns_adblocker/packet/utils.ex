@@ -14,11 +14,10 @@ defmodule DnsAdblocker.Packet.Utils do
   end
 
   def apply_invalid_answer({:dns_rec, _, [question], _, _, _} = packet) do
-    {:dns_query, domain, type, class, _} = question
+    {:dns_query, domain, _type, class, _} = question
 
     answer =
-      {:dns_rr, domain, type, class, 0, @invalid_answer_ttl, @invalid_answer_ip, :undefined, [],
-       false}
+      {:dns_rr, domain, :a, class, 0, @invalid_answer_ttl, @invalid_answer_ip, nil, [], false}
 
     apply_answers(packet, {[answer], []})
   end

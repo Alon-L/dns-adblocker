@@ -1,7 +1,7 @@
 defmodule DnsAdblocker.Providers do
   @moduledoc """
   Use erlang's ETS to store a set of all the providers' DNSs.
-
+  
   Fetch the providers from the @providers_url list.
   The list is updated every day, and the Providers Scheduler updates the ETS.
   """
@@ -19,7 +19,7 @@ defmodule DnsAdblocker.Providers do
   @impl true
   def init(_) do
     :ets.new(:providers, [:named_table, :set, :public])
-    fetch_and_update()
+    send(self(), :fetch)
     :timer.send_interval(@fetch_interval, :fetch)
     {:ok, nil}
   end
