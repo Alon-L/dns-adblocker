@@ -1,6 +1,8 @@
 # DNS AdBlocker
 
-**TODO: Add description**
+Block ads on the entire network by configuring a machine running this application as the DNS server.
+
+The application bridges DNS packets to the real DNS server, but first filters them by looking at a huge list of ad providers' domains.
 
 ## Running
 
